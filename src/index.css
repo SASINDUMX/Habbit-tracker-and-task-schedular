@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: #030712;
+    --bg-secondary: #0f172a;
+    --bg-card: #1e293b;
+    --border-color: #334155;
+    --accent-color: #22c55e;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: #f8fafc;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Custom Themes */
+body.theme-oled {
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-card: #121212;
+  --border-color: #222222;
+  --accent-color: #22c55e;
+}
+
+body.theme-dark {
+  --bg-primary: #090d16;
+  --bg-secondary: #111827;
+  --bg-card: #1f2937;
+  --border-color: #374151;
+  --accent-color: #3b82f6;
+}
+
+body.theme-cyberpunk {
+  --bg-primary: #080314;
+  --bg-secondary: #17072b;
+  --bg-card: #270c48;
+  --border-color: #6312a0;
+  --accent-color: #06b6d4;
+}
+
+body.theme-emerald {
+  --bg-primary: #021a12;
+  --bg-secondary: #062c20;
+  --bg-card: #0a4030;
+  --border-color: #145943;
+  --accent-color: #10b981;
+}
+
+body.theme-sunset {
+  --bg-primary: #18090d;
+  --bg-secondary: #2c0f17;
+  --bg-card: #451724;
+  --border-color: #6b2539;
+  --accent-color: #f97316;
+}
+
+body.theme-retro {
+  --bg-primary: #12140a;
+  --bg-secondary: #1e2112;
+  --bg-card: #2c311c;
+  --border-color: #4a5231;
+  --accent-color: #eab308;
+}
+
+body.theme-synthwave {
+  --bg-primary: #0f051d;
+  --bg-secondary: #200b3b;
+  --bg-card: #31115b;
+  --border-color: #551e9c;
+  --accent-color: #ec4899;
+}
+
+body.theme-light {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-card: #ffffff;
+  --border-color: #e2e8f0;
+  --accent-color: #16a34a;
+  color: #0f172a;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.4);
+}
+
+/* Glassmorphism helpers */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.theme-light .glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.theme-light .glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Timeline grid pattern */
+.timeline-grid {
+  background-size: 100% 60px;
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+}
+
+.theme-light .timeline-grid {
+  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+}
