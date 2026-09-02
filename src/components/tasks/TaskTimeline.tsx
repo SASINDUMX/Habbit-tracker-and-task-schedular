@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Task, Category } from '../../types';
 import { formatTimeDisplay, getTodayString } from '../../utils/dateUtils';
-import { Clock, CheckCircle2, Circle, AlertCircle, Plus } from 'lucide-react';
+import { Clock, CheckCircle2, Circle, AlertCircle, Plus, Trash2 } from 'lucide-react';
 
 interface TaskTimelineProps {
   tasks: Task[];
@@ -10,6 +10,7 @@ interface TaskTimelineProps {
   onToggleStatus: (taskId: string) => void;
   onEditTask: (task: Task) => void;
   onScheduleSlot: (timeStr: string) => void;
+  onDeleteTask?: (taskId: string) => void;
 }
 
 const START_HOUR = 6; // 06:00 AM
@@ -24,6 +25,7 @@ export const TaskTimeline: React.FC<TaskTimelineProps> = ({
   onToggleStatus,
   onEditTask,
   onScheduleSlot,
+  onDeleteTask,
 }) => {
   const isToday = selectedDate === getTodayString();
 
@@ -121,6 +123,21 @@ export const TaskTimeline: React.FC<TaskTimelineProps> = ({
                 <span className="text-[10px] text-slate-400 font-semibold px-1.5 py-0.5 rounded bg-slate-900 capitalize">
                   {task.priority}
                 </span>
+                {onDeleteTask && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm(`Delete "${task.title}"?`)) {
+                        onDeleteTask(task.id);
+                      }
+                    }}
+                    className="p-1 text-slate-500 hover:text-red-400 transition"
+                    title="Delete task"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -222,6 +239,21 @@ export const TaskTimeline: React.FC<TaskTimelineProps> = ({
                     <div className="flex items-center gap-1.5 shrink-0 text-[10px] font-mono text-slate-300 bg-slate-900/60 px-2 py-0.5 rounded-lg border border-slate-700/40">
                       <span>{task.startTime}</span>
                       {task.endTime && <span>- {task.endTime}</span>}
+                      {onDeleteTask && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (confirm(`Delete "${task.title}"?`)) {
+                              onDeleteTask(task.id);
+                            }
+                          }}
+                          className="ml-1 text-slate-400 hover:text-red-400 transition"
+                          title="Delete task"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      )}
                     </div>
                   </div>
 

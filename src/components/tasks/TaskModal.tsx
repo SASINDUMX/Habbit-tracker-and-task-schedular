@@ -7,6 +7,7 @@ interface TaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (taskData: Omit<Task, 'id' | 'createdAt'>) => void;
+  onDelete?: (taskId: string) => void;
   initialData?: Task | null;
   categories: Category[];
   goals: Goal[];
@@ -25,6 +26,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   isOpen,
   onClose,
   onSave,
+  onDelete,
   initialData,
   categories,
   goals,
@@ -364,22 +366,42 @@ export const TaskModal: React.FC<TaskModalProps> = ({
             </div>
           )}
 
-          {/* Footer Submit */}
-          <div className="flex justify-end gap-3 pt-3 border-t border-slate-800 shrink-0">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm text-slate-400 hover:text-slate-200 transition cursor-pointer"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex items-center gap-2 px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-slate-950 font-semibold text-sm rounded-xl shadow-lg shadow-brand-500/20 transition cursor-pointer"
-            >
-              <Check className="w-4 h-4" />
-              {initialData ? 'Save Changes' : 'Create Task'}
-            </button>
+          {/* Footer Actions */}
+          <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-800 shrink-0">
+            {initialData && onDelete ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm('Are you sure you want to delete this task?')) {
+                    onDelete(initialData.id);
+                    onClose();
+                  }
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl border border-red-500/20 transition cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Delete Task
+              </button>
+            ) : (
+              <div />
+            )}
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 text-sm text-slate-400 hover:text-slate-200 transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="flex items-center gap-2 px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-slate-950 font-semibold text-sm rounded-xl shadow-lg shadow-brand-500/20 transition cursor-pointer"
+              >
+                <Check className="w-4 h-4" />
+                {initialData ? 'Save Changes' : 'Create Task'}
+              </button>
+            </div>
           </div>
         </form>
       </div>

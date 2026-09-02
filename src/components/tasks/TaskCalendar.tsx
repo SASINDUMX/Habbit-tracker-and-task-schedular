@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Task } from '../../types';
 import { getMonthDays, formatDisplayDate, getTodayString } from '../../utils/dateUtils';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, CheckCircle2, Circle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, CheckCircle2, Circle, Trash2 } from 'lucide-react';
 import { format, isSameDay, parseISO } from 'date-fns';
 
 interface TaskCalendarProps {
@@ -11,6 +11,7 @@ interface TaskCalendarProps {
   onToggleStatus: (taskId: string) => void;
   onEditTask: (task: Task) => void;
   onAddNewTask: (dateStr: string) => void;
+  onDeleteTask?: (taskId: string) => void;
 }
 
 export const TaskCalendar: React.FC<TaskCalendarProps> = ({
@@ -20,6 +21,7 @@ export const TaskCalendar: React.FC<TaskCalendarProps> = ({
   onToggleStatus,
   onEditTask,
   onAddNewTask,
+  onDeleteTask,
 }) => {
   const [currentMonthDate, setCurrentMonthDate] = useState<Date>(() => new Date());
 
@@ -214,9 +216,26 @@ export const TaskCalendar: React.FC<TaskCalendarProps> = ({
                       </h5>
                     </div>
 
-                    <span className="text-[10px] font-mono text-slate-400 px-1.5 py-0.5 rounded bg-slate-900">
-                      {task.priority}
-                    </span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px] font-mono text-slate-400 px-1.5 py-0.5 rounded bg-slate-900">
+                        {task.priority}
+                      </span>
+                      {onDeleteTask && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (confirm(`Delete "${task.title}"?`)) {
+                              onDeleteTask(task.id);
+                            }
+                          }}
+                          className="p-1 text-slate-500 hover:text-red-400 transition"
+                          title="Delete task"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   {task.startTime && (

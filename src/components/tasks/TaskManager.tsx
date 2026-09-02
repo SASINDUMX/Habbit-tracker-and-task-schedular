@@ -159,6 +159,7 @@ export const TaskManager: React.FC = () => {
           onToggleStatus={toggleTaskStatus}
           onEditTask={handleEditTask}
           onScheduleSlot={(timeStr) => handleAddNew(timeStr)}
+          onDeleteTask={deleteTask}
         />
       )}
 
@@ -183,6 +184,7 @@ export const TaskManager: React.FC = () => {
           onToggleStatus={toggleTaskStatus}
           onEditTask={handleEditTask}
           onAddNewTask={(dateStr) => handleAddNew(undefined, 'todo', dateStr)}
+          onDeleteTask={deleteTask}
         />
       )}
 
@@ -192,6 +194,7 @@ export const TaskManager: React.FC = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onSave={handleSave}
+          onDelete={deleteTask}
           initialData={editingTask}
           categories={categories}
           goals={goals}
