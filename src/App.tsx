@@ -17,9 +17,28 @@ import { AlarmTriggerModal } from './components/reminders/AlarmTriggerModal';
 import { IOSInstallModal } from './components/common/IOSInstallModal';
 import { Habit, Task } from './types';
 
+const getInitialTab = (): NavTab => {
+  if (typeof window !== 'undefined') {
+    const tabParam = new URLSearchParams(window.location.search).get('tab');
+    if (tabParam && ['dashboard', 'habits', 'tasks', 'goals', 'reminders', 'focus', 'analytics', 'settings'].includes(tabParam)) {
+      return tabParam as NavTab;
+    }
+  }
+  return 'dashboard';
+};
+
 const MainLayout: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
+  const [activeTab, setActiveTabState] = useState<NavTab>(getInitialTab);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const setActiveTab = (tab: NavTab) => {
+    setActiveTabState(tab);
+    if (typeof window !== 'undefined' && window.history) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', tab);
+      window.history.replaceState({}, '', url.toString());
+    }
+  };
 
   // Focus context transfer
   const [focusHabit, setFocusHabit] = useState<Habit | null>(null);

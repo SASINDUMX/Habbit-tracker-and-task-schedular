@@ -45,6 +45,36 @@ export default defineConfig({
             purpose: 'any',
           },
         ],
+        shortcuts: [
+          {
+            name: 'Check Habits',
+            short_name: 'Habits',
+            description: "Log and track today's daily habits",
+            url: '/?tab=habits',
+            icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }],
+          },
+          {
+            name: 'Start Focus Timer',
+            short_name: 'Focus',
+            description: 'Launch 25-min Pomodoro timer',
+            url: '/?tab=focus',
+            icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }],
+          },
+          {
+            name: '24h Task Scheduler',
+            short_name: 'Tasks',
+            description: "Plan today's visual schedule",
+            url: '/?tab=tasks',
+            icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }],
+          },
+          {
+            name: 'Alarms & Reminders',
+            short_name: 'Alarms',
+            description: 'View scheduled alerts and alarms',
+            url: '/?tab=reminders',
+            icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }],
+          },
+        ],
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
