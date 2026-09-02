@@ -1,6 +1,7 @@
 import { Habit, HabitLog, Task, Goal, Reminder, Category, UserSettings, FocusSession } from '../types';
 import { getInitialPresets, DEFAULT_CATEGORIES, DEFAULT_SETTINGS } from './presets';
 import { getTodayString } from './dateUtils';
+import { format } from 'date-fns';
 
 const KEYS = {
   HABITS: 'orbit_habits_v1',
@@ -13,13 +14,53 @@ const KEYS = {
   FOCUS: 'orbit_focus_sessions_v1',
 };
 
+const DB_NAME = 'orbit_os_db';
+const DB_VERSION = 1;
+const STORE_NAME = 'orbit_store';
+
+// Initialize native IndexedDB
+function openIndexedDB(): Promise<IDBDatabase | null> {
+  if (typeof window === 'undefined' || !('indexedDB' in window)) {
+    return Promise.resolve(null);
+  }
+  return new Promise((resolve) => {
+    try {
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.createObjectStore(STORE_NAME);
+        }
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => resolve(null);
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+// Mirror writes asynchronously to IndexedDB
+function mirrorToIndexedDB(key: string, value: unknown): void {
+  openIndexedDB().then((db) => {
+    if (!db) return;
+    try {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      store.put(value, key);
+    } catch (err) {
+      console.warn(`IndexedDB mirror write failed for [${key}]:`, err);
+    }
+  });
+}
+
 export function loadInitialData() {
   const presets = getInitialPresets();
 
   const habits: Habit[] = getItem(KEYS.HABITS, presets.habits);
   const rawLogs: HabitLog[] = getItem(KEYS.LOGS, []);
-  
-  // Seed sample logs if new user for nice visual demonstration
+
+  // Seed sample logs if brand new user for realistic heatmaps
   let logs = rawLogs;
   if (logs.length === 0) {
     logs = generateSeedLogs(habits);
@@ -39,15 +80,14 @@ export function loadInitialData() {
 function generateSeedLogs(habits: Habit[]): HabitLog[] {
   const logs: HabitLog[] = [];
   const today = new Date();
-  
-  // Generate realistic past 14 days activity
+
+  // Generate realistic past 14 days activity using local date strings
   for (let i = 14; i >= 0; i--) {
     const d = new Date();
     d.setDate(today.getDate() - i);
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = format(d, 'yyyy-MM-dd');
 
-    habits.forEach(h => {
-      // 80% completion chance for demo
+    habits.forEach((h) => {
       const completed = Math.random() > 0.25;
       if (completed) {
         logs.push({
@@ -55,7 +95,7 @@ function generateSeedLogs(habits: Habit[]): HabitLog[] {
           habitId: h.id,
           date: dateStr,
           completed: true,
-          value: h.type === 'number' ? (h.targetValue || 1) : (h.type === 'timer' ? (h.targetValue || 30) : 1),
+          value: h.type === 'number' ? h.targetValue || 1 : h.type === 'timer' ? h.targetValue || 30 : 1,
           loggedAt: new Date(d.setHours(9, 0, 0, 0)).toISOString(),
         });
       }
@@ -77,14 +117,16 @@ export function saveItem<T>(key: string, value: T): void {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch (err) {
-    console.error(`Error saving to localStorage [${key}]:`, err);
+    console.warn(`LocalStorage quota exceeded or write failed for [${key}]:`, err);
   }
+  // Also mirror to IndexedDB in background
+  mirrorToIndexedDB(key, value);
 }
 
 export function exportBackupJSON(data: Record<string, unknown>): string {
   const exportPayload = {
     app: 'Orbit Life OS',
-    version: '1.0.0',
+    version: '1.1.0',
     exportedAt: new Date().toISOString(),
     data,
   };

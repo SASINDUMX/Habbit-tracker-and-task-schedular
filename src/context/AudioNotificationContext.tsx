@@ -200,7 +200,19 @@ export const AudioNotificationProvider: React.FC<{
 
     checkSchedule();
     const interval = setInterval(checkSchedule, 2500); // 2.5s ticker
-    return () => clearInterval(interval);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        unlockAudioContext();
+        checkSchedule();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [reminders, triggerAlarm]);
 
   // Ambient sound controller

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Task, PriorityLevel, TaskStatus, Category, Goal, Subtask } from '../../types';
 import { X, Check, Clock, Calendar, Plus, Trash2, Bell, AlertTriangle } from 'lucide-react';
 import { getTodayString } from '../../utils/dateUtils';
@@ -107,8 +107,21 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     onClose();
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="task-modal-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in"
+    >
       <div className="relative w-full max-w-xl overflow-hidden rounded-3xl border border-slate-700 bg-slate-900 p-6 shadow-2xl text-slate-100 max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-800 shrink-0">
@@ -117,7 +130,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
               <Calendar className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">
+              <h2 id="task-modal-title" className="text-xl font-bold text-white">
                 {initialData ? 'Edit Task' : 'Schedule New Task'}
               </h2>
               <p className="text-xs text-slate-400">Plan time blocks, subtasks & priority</p>

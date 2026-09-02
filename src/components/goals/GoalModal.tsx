@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Goal, Category, Milestone, Habit } from '../../types';
 import { IconRenderer, AVAILABLE_ICONS, PRESET_COLORS } from '../common/IconRenderer';
 import { X, Check, Target, Plus, Trash2, Calendar } from 'lucide-react';
@@ -76,8 +76,21 @@ export const GoalModal: React.FC<GoalModalProps> = ({
     onClose();
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="goal-modal-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in"
+    >
       <div className="relative w-full max-w-xl overflow-hidden rounded-3xl border border-slate-700 bg-slate-900 p-6 shadow-2xl text-slate-100 max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-800 shrink-0">
@@ -89,7 +102,7 @@ export const GoalModal: React.FC<GoalModalProps> = ({
               <IconRenderer name={icon} size={20} color={color} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">
+              <h2 id="goal-modal-title" className="text-xl font-bold text-white">
                 {initialData ? 'Edit Goal' : 'Create Long-Term Goal'}
               </h2>
               <p className="text-xs text-slate-400">Define milestones & link daily routines</p>

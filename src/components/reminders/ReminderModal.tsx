@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Reminder, SoundType } from '../../types';
 import { useAudioNotification } from '../../context/AudioNotificationContext';
 import { X, Volume2, Bell, Clock, Calendar, Check } from 'lucide-react';
@@ -77,6 +77,14 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
     onClose();
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   const toggleDay = (day: number) => {
     setSelectedDays((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day].sort()
@@ -84,14 +92,19 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="reminder-modal-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in"
+    >
       <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-slate-700 bg-slate-900 p-6 shadow-2xl text-slate-100">
         <div className="flex items-center justify-between pb-4 border-b border-slate-800">
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-xl bg-brand-500/20 text-brand-400">
               <Bell className="w-5 h-5" />
             </div>
-            <h2 className="text-xl font-bold">
+            <h2 id="reminder-modal-title" className="text-xl font-bold">
               {initialData ? 'Edit Reminder / Alarm' : 'Create Reminder / Alarm'}
             </h2>
           </div>

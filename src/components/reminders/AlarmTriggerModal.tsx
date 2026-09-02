@@ -8,6 +8,15 @@ export const AlarmTriggerModal: React.FC = () => {
   const { activeAlarm, dismissAlarm, snoozeAlarm } = useAudioNotification();
   const { toggleHabitCompletion, toggleTaskStatus } = useApp();
 
+  // Allow pressing Escape to dismiss alarm
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') dismissAlarm();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [dismissAlarm]);
+
   if (!activeAlarm) return null;
 
   const handleCompleteAndDismiss = () => {
@@ -22,7 +31,12 @@ export const AlarmTriggerModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="alarm-modal-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in"
+    >
       <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-brand-500/40 bg-slate-900/95 p-8 shadow-2xl shadow-brand-500/20 text-center">
         {/* Glowing Pulsing Ring */}
         <div className="absolute -top-12 -left-12 w-40 h-40 bg-brand-500/20 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
@@ -37,7 +51,7 @@ export const AlarmTriggerModal: React.FC = () => {
           Scheduled Alarm Alert
         </span>
 
-        <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">
+        <h3 id="alarm-modal-title" className="text-2xl font-bold text-white mb-2 tracking-tight">
           {activeAlarm.title}
         </h3>
 
