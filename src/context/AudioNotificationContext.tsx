@@ -1,6 +1,14 @@
 import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
 import { Reminder, SoundType, AmbientSoundType } from '../types';
-import { playSynthesizedSound, playCompletionPop, startAmbientSound, stopAmbientSound, updateAmbientVolume } from '../utils/soundSynthesizer';
+import {
+  playSynthesizedSound,
+  playCompletionPop,
+  startAmbientSound,
+  stopAmbientSound,
+  updateAmbientVolume,
+  unlockAudioContext,
+} from '../utils/soundSynthesizer';
+import { format } from 'date-fns';
 import confetti from 'canvas-confetti';
 
 interface AudioNotificationContextType {
@@ -9,6 +17,8 @@ interface AudioNotificationContextType {
   playSound: (sound: SoundType) => void;
   playCelebration: () => void;
   activeAlarm: Reminder | null;
+  triggerAlarm: (reminder: Reminder) => void;
+  triggerTestAlarm: () => void;
   dismissAlarm: () => void;
   snoozeAlarm: (minutes: number) => void;
   ambientSound: AmbientSoundType;
@@ -54,13 +64,18 @@ export const AudioNotificationProvider: React.FC<{
     }
   };
 
-  const playSound = useCallback((sound: SoundType) => {
-    if (!soundEnabled) return;
-    playSynthesizedSound(sound, soundVolume);
-  }, [soundEnabled, soundVolume]);
+  const playSound = useCallback(
+    (sound: SoundType) => {
+      if (!soundEnabled) return;
+      unlockAudioContext();
+      playSynthesizedSound(sound, soundVolume);
+    },
+    [soundEnabled, soundVolume]
+  );
 
   const playCelebration = useCallback(() => {
     if (soundEnabled) {
+      unlockAudioContext();
       playCompletionPop(soundVolume);
     }
     try {
@@ -75,29 +90,47 @@ export const AudioNotificationProvider: React.FC<{
     }
   }, [soundEnabled, soundVolume]);
 
-  const triggerAlarm = useCallback((reminder: Reminder) => {
-    setActiveAlarm(reminder);
-    playSound(reminder.sound || 'bell');
-
-    // Also trigger repeating chime while alarm is active
-    if (alarmIntervalRef.current) clearInterval(alarmIntervalRef.current);
-    alarmIntervalRef.current = window.setInterval(() => {
+  const triggerAlarm = useCallback(
+    (reminder: Reminder) => {
+      unlockAudioContext();
+      setActiveAlarm(reminder);
       playSound(reminder.sound || 'bell');
-    }, 4000);
 
-    // Trigger System Notification
-    if ('Notification' in window && Notification.permission === 'granted') {
-      try {
-        new Notification(`⏰ ${reminder.title}`, {
-          body: reminder.description || 'Time for your scheduled routine or task!',
-          icon: '/favicon.svg',
-          requireInteraction: true,
-        });
-      } catch {
-        // ignore
+      // Loop chime every 3.5 seconds while alarm is active
+      if (alarmIntervalRef.current) clearInterval(alarmIntervalRef.current);
+      alarmIntervalRef.current = window.setInterval(() => {
+        playSound(reminder.sound || 'bell');
+      }, 3500);
+
+      // Trigger System Notification
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+          new Notification(`⏰ ${reminder.title}`, {
+            body: reminder.description || 'Time for your scheduled routine or task!',
+            icon: '/pwa-192x192.png',
+            requireInteraction: true,
+          });
+        } catch {
+          // ignore
+        }
       }
-    }
-  }, [playSound]);
+    },
+    [playSound]
+  );
+
+  const triggerTestAlarm = useCallback(() => {
+    const testReminder: Reminder = {
+      id: `test-${Date.now()}`,
+      title: 'Test Alarm (Preview)',
+      description: 'Your alarm sound, snooze controls, and notification are working perfectly!',
+      type: 'alarm',
+      time: format(new Date(), 'HH:mm'),
+      sound: 'bell',
+      enabled: true,
+      createdAt: new Date().toISOString(),
+    };
+    triggerAlarm(testReminder);
+  }, [triggerAlarm]);
 
   const dismissAlarm = () => {
     if (alarmIntervalRef.current) {
@@ -110,9 +143,10 @@ export const AudioNotificationProvider: React.FC<{
   const snoozeAlarm = (minutes: number) => {
     if (!activeAlarm) return;
     const snoozeTarget = new Date(Date.now() + minutes * 60 * 1000);
-    const snoozeTimeStr = `${String(snoozeTarget.getHours()).padStart(2, '0')}:${String(snoozeTarget.getMinutes()).padStart(2, '0')}`;
-    
-    // Temporarily register a snoozed alert key
+    const snoozeTimeStr = `${String(snoozeTarget.getHours()).padStart(2, '0')}:${String(
+      snoozeTarget.getMinutes()
+    ).padStart(2, '0')}`;
+
     const snoozedReminder: Reminder = {
       ...activeAlarm,
       id: `snooze-${Date.now()}`,
@@ -126,29 +160,38 @@ export const AudioNotificationProvider: React.FC<{
     }, minutes * 60 * 1000);
   };
 
-  // Check reminders every 10 seconds against current time
+  // Check reminders every 2.5 seconds against local device time
   useEffect(() => {
     const checkSchedule = () => {
       const now = new Date();
-      const currentHHMM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-      const todayDateStr = now.toISOString().split('T')[0];
+      const localTodayStr = format(now, 'yyyy-MM-dd'); // Local date, not UTC!
+      const nowH = now.getHours();
+      const nowM = now.getMinutes();
       const dayOfWeek = now.getDay();
 
       reminders.forEach((r) => {
-        if (!r.enabled) return;
+        if (!r.enabled || !r.time) return;
 
-        // Form unique key for today to avoid double firing within the same minute
-        const triggerKey = `${r.id}-${todayDateStr}-${currentHHMM}`;
+        // Parse reminder time (supports "07:30" or "7:30")
+        const timeParts = r.time.split(':').map((s) => parseInt(s.trim(), 10));
+        if (timeParts.length < 2 || isNaN(timeParts[0]) || isNaN(timeParts[1])) return;
+        const remH = timeParts[0];
+        const remM = timeParts[1];
+
+        // Key to prevent double firing in the same minute
+        const triggerKey = `${r.id}-${localTodayStr}-${remH}-${remM}`;
         if (triggeredSetRef.current.has(triggerKey)) return;
 
-        // Check if date or day matches
-        if (r.date && r.date !== todayDateStr) return;
+        // 1. One-off date check
+        if (r.date && r.date !== localTodayStr) return;
 
+        // 2. Specific days check
         if (r.recurring?.type === 'specific_days' && r.recurring.days) {
           if (!r.recurring.days.includes(dayOfWeek)) return;
         }
 
-        if (r.time === currentHHMM) {
+        // 3. Time comparison
+        if (remH === nowH && remM === nowM) {
           triggeredSetRef.current.add(triggerKey);
           triggerAlarm(r);
         }
@@ -156,7 +199,7 @@ export const AudioNotificationProvider: React.FC<{
     };
 
     checkSchedule();
-    const interval = setInterval(checkSchedule, 10000);
+    const interval = setInterval(checkSchedule, 2500); // 2.5s ticker
     return () => clearInterval(interval);
   }, [reminders, triggerAlarm]);
 
@@ -166,6 +209,7 @@ export const AudioNotificationProvider: React.FC<{
     if (type === 'none') {
       stopAmbientSound();
     } else {
+      unlockAudioContext();
       startAmbientSound(type, ambientVolume);
     }
   };
@@ -183,6 +227,8 @@ export const AudioNotificationProvider: React.FC<{
         playSound,
         playCelebration,
         activeAlarm,
+        triggerAlarm,
+        triggerTestAlarm,
         dismissAlarm,
         snoozeAlarm,
         ambientSound,

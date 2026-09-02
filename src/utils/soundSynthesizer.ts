@@ -2,15 +2,36 @@ import { SoundType, AmbientSoundType } from '../types';
 
 let audioCtx: AudioContext | null = null;
 
-function getAudioContext(): AudioContext {
+export function getAudioContext(): AudioContext {
   if (!audioCtx) {
     const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     audioCtx = new AudioContextClass();
   }
   if (audioCtx.state === 'suspended') {
-    audioCtx.resume();
+    audioCtx.resume().catch(() => {});
   }
   return audioCtx;
+}
+
+export function unlockAudioContext(): void {
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+  } catch (err) {
+    console.warn("Could not unlock audio context:", err);
+  }
+}
+
+// Auto-unlock on first user interaction anywhere
+if (typeof window !== 'undefined') {
+  const unlockEvents = ['click', 'touchstart', 'touchend', 'keydown'];
+  const handleInteraction = () => {
+    unlockAudioContext();
+    unlockEvents.forEach(evt => window.removeEventListener(evt, handleInteraction));
+  };
+  unlockEvents.forEach(evt => window.addEventListener(evt, handleInteraction, { passive: true }));
 }
 
 /**
@@ -19,6 +40,10 @@ function getAudioContext(): AudioContext {
 export function playSynthesizedSound(type: SoundType, volume: number = 0.7) {
   try {
     const ctx = getAudioContext();
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+
     const now = ctx.currentTime;
     const gainNode = ctx.createGain();
     gainNode.gain.setValueAtTime(Math.max(0.01, Math.min(volume, 1.0)), now);
@@ -156,6 +181,9 @@ export function playSynthesizedSound(type: SoundType, volume: number = 0.7) {
 export function playCompletionPop(volume: number = 0.5) {
   try {
     const ctx = getAudioContext();
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
     const now = ctx.currentTime;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -205,12 +233,14 @@ export function startAmbientSound(type: AmbientSoundType, volume: number = 0.3) 
 
   try {
     const ctx = getAudioContext();
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
     ambientGain = ctx.createGain();
     ambientGain.gain.setValueAtTime(Math.max(0.01, volume), ctx.currentTime);
     ambientGain.connect(ctx.destination);
 
     if (type === 'whitenoise' || type === 'rain') {
-      // 5-second buffer of filtered noise looped
       const bufferSize = ctx.sampleRate * 4;
       const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const output = noiseBuffer.getChannelData(0);
@@ -219,7 +249,6 @@ export function startAmbientSound(type: AmbientSoundType, volume: number = 0.3) 
       for (let i = 0; i < bufferSize; i++) {
         const white = Math.random() * 2 - 1;
         if (type === 'rain') {
-          // Pink/Brown noise filter for rain texture
           lastOut = (lastOut + 0.02 * white) / 1.02;
           output[i] = lastOut * 3.5;
         } else {
@@ -240,7 +269,6 @@ export function startAmbientSound(type: AmbientSoundType, volume: number = 0.3) 
       whiteNoise.start();
       ambientSource = whiteNoise;
     } else if (type === 'binaural' || type === 'zen_drone') {
-      // Binaural alpha wave (200Hz left, 210Hz right -> 10Hz brainwave entrainment)
       const osc1 = ctx.createOscillator();
       const osc2 = ctx.createOscillator();
       osc1.type = 'sine';

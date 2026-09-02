@@ -22,6 +22,7 @@ export const ReminderCenter: React.FC = () => {
     hasNotificationPermission,
     requestNotificationPermission,
     playSound,
+    triggerTestAlarm,
     soundVolume,
     setSoundVolume,
     soundEnabled,
@@ -65,13 +66,24 @@ export const ReminderCenter: React.FC = () => {
           </p>
         </div>
 
-        <button
-          onClick={handleAddNew}
-          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-500 hover:bg-brand-600 text-slate-950 font-semibold text-sm rounded-xl shadow-lg shadow-brand-500/20 transition cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          Add New Alarm
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={triggerTestAlarm}
+            className="flex items-center justify-center gap-2 px-3.5 py-2.5 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 font-semibold text-xs rounded-xl transition cursor-pointer"
+            title="Preview the full alarm alert modal and audio chime right now"
+          >
+            <Bell className="w-3.5 h-3.5 text-amber-400" />
+            Test Alarm Alert
+          </button>
+
+          <button
+            onClick={handleAddNew}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-500 hover:bg-brand-600 text-slate-950 font-semibold text-sm rounded-xl shadow-lg shadow-brand-500/20 transition cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            Add New Alarm
+          </button>
+        </div>
       </div>
 
       {/* Permission & Sound Settings Bar */}
