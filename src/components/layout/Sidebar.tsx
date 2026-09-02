@@ -1,6 +1,8 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
+import { usePwa } from '../../context/PwaContext';
 import {
+  LayoutDashboard,
   Sparkles,
   Clock,
   Target,
@@ -10,9 +12,10 @@ import {
   Sliders,
   Compass,
   CheckCircle2,
+  Smartphone,
 } from 'lucide-react';
 
-export type NavTab = 'habits' | 'tasks' | 'goals' | 'reminders' | 'focus' | 'analytics' | 'settings';
+export type NavTab = 'dashboard' | 'habits' | 'tasks' | 'goals' | 'reminders' | 'focus' | 'analytics' | 'settings';
 
 interface SidebarProps {
   activeTab: NavTab;
@@ -28,11 +31,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onClose,
 }) => {
   const { reminders, habits, tasks } = useApp();
+  const { isInstalled, installApp } = usePwa();
 
   const enabledAlarmsCount = reminders.filter((r) => r.enabled).length;
   const pendingTasksCount = tasks.filter((t) => t.status !== 'completed').length;
 
   const navItems = [
+    { id: 'dashboard', label: 'Command Center', icon: LayoutDashboard },
     { id: 'habits', label: 'Habit Engine', icon: Sparkles, badge: habits.length },
     { id: 'tasks', label: 'Task Scheduler', icon: Clock, badge: pendingTasksCount },
     { id: 'goals', label: 'Goals & Milestones', icon: Target },
@@ -113,8 +118,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
           })}
         </nav>
 
-        {/* Footer Info */}
-        <div className="p-4 border-t border-slate-800 text-center">
+        {/* Footer Info & PWA Install Button */}
+        <div className="p-4 border-t border-slate-800 space-y-2.5">
+          {!isInstalled && (
+            <button
+              onClick={installApp}
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/30 text-blue-300 font-semibold text-xs transition cursor-pointer"
+            >
+              <Smartphone className="w-4 h-4 text-blue-400" />
+              <span>Install to Device</span>
+            </button>
+          )}
+
           <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-500 font-medium">
             <CheckCircle2 className="w-3.5 h-3.5 text-brand-400" />
             <span>100% Offline & Private</span>

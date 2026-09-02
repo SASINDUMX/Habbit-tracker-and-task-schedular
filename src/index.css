@@ -4,84 +4,220 @@
 
 @layer base {
   :root {
-    --bg-primary: #030712;
-    --bg-secondary: #0f172a;
-    --bg-card: #1e293b;
-    --border-color: #334155;
-    --accent-color: #22c55e;
+    --bg-primary: #000000;
+    --bg-secondary: #0a0a0a;
+    --bg-card: #121212;
+    --bg-input: #1a1a1a;
+    --border-color: #262626;
+    --text-primary: #ffffff;
+    --text-secondary: #a3a3a3;
+    
+    --brand-50: #f0fdf4;
+    --brand-100: #dcfce7;
+    --brand-200: #bbf7d0;
+    --brand-300: #86efac;
+    --brand-400: #4ade80;
+    --brand-500: #22c55e;
+    --brand-600: #16a34a;
+    --brand-700: #15803d;
+    --brand-800: #166534;
+    --brand-900: #14532d;
+    --brand-950: #052e16;
   }
 
   body {
     background-color: var(--bg-primary);
-    color: #f8fafc;
+    color: var(--text-primary);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 
-/* Custom Themes */
+/* 1. OLED PURE BLACK */
 body.theme-oled {
   --bg-primary: #000000;
   --bg-secondary: #0a0a0a;
   --bg-card: #121212;
-  --border-color: #222222;
-  --accent-color: #22c55e;
+  --bg-input: #1c1c1c;
+  --border-color: #262626;
+  --text-primary: #ffffff;
+  --text-secondary: #a3a3a3;
+  --brand-400: #4ade80;
+  --brand-500: #22c55e;
+  --brand-600: #16a34a;
 }
 
+/* 2. DEEP SPACE DARK */
 body.theme-dark {
   --bg-primary: #090d16;
-  --bg-secondary: #111827;
-  --bg-card: #1f2937;
-  --border-color: #374151;
-  --accent-color: #3b82f6;
+  --bg-secondary: #0e1626;
+  --bg-card: #141f36;
+  --bg-input: #1c2a47;
+  --border-color: #223559;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --brand-400: #60a5fa;
+  --brand-500: #3b82f6;
+  --brand-600: #2563eb;
 }
 
+/* 3. CYBERPUNK NEON */
 body.theme-cyberpunk {
-  --bg-primary: #080314;
-  --bg-secondary: #17072b;
-  --bg-card: #270c48;
-  --border-color: #6312a0;
-  --accent-color: #06b6d4;
+  --bg-primary: #0b051a;
+  --bg-secondary: #14092e;
+  --bg-card: #1f0e45;
+  --bg-input: #2b135e;
+  --border-color: #581c87;
+  --text-primary: #f8fafc;
+  --text-secondary: #c084fc;
+  --brand-400: #22d3ee;
+  --brand-500: #06b6d4;
+  --brand-600: #0891b2;
 }
 
+/* 4. EMERALD FOREST */
 body.theme-emerald {
-  --bg-primary: #021a12;
-  --bg-secondary: #062c20;
-  --bg-card: #0a4030;
-  --border-color: #145943;
-  --accent-color: #10b981;
+  --bg-primary: #02160f;
+  --bg-secondary: #05261b;
+  --bg-card: #0a3828;
+  --bg-input: #0e4733;
+  --border-color: #176549;
+  --text-primary: #f0fdf4;
+  --text-secondary: #86efac;
+  --brand-400: #34d399;
+  --brand-500: #10b981;
+  --brand-600: #059669;
 }
 
+/* 5. CRIMSON SUNSET */
 body.theme-sunset {
-  --bg-primary: #18090d;
-  --bg-secondary: #2c0f17;
-  --bg-card: #451724;
-  --border-color: #6b2539;
-  --accent-color: #f97316;
+  --bg-primary: #17070b;
+  --bg-secondary: #240b12;
+  --bg-card: #36101b;
+  --bg-input: #471524;
+  --border-color: #6b2137;
+  --text-primary: #fff1f2;
+  --text-secondary: #fda4af;
+  --brand-400: #fb923c;
+  --brand-500: #f97316;
+  --brand-600: #ea580c;
 }
 
+/* 6. RETRO AMBER */
 body.theme-retro {
-  --bg-primary: #12140a;
-  --bg-secondary: #1e2112;
-  --bg-card: #2c311c;
-  --border-color: #4a5231;
-  --accent-color: #eab308;
+  --bg-primary: #121208;
+  --bg-secondary: #1c1c0c;
+  --bg-card: #292912;
+  --bg-input: #383819;
+  --border-color: #575727;
+  --text-primary: #fefce8;
+  --text-secondary: #fef08a;
+  --brand-400: #facc15;
+  --brand-500: #eab308;
+  --brand-600: #ca8a04;
 }
 
+/* 7. SYNTHWAVE GLOW */
 body.theme-synthwave {
-  --bg-primary: #0f051d;
-  --bg-secondary: #200b3b;
-  --bg-card: #31115b;
-  --border-color: #551e9c;
-  --accent-color: #ec4899;
+  --bg-primary: #10041d;
+  --bg-secondary: #1a0830;
+  --bg-card: #280d4a;
+  --bg-input: #381269;
+  --border-color: #5c1fa8;
+  --text-primary: #fdf2f8;
+  --text-secondary: #f472b6;
+  --brand-400: #f472b6;
+  --brand-500: #ec4899;
+  --brand-600: #db2777;
 }
 
+/* 8. CLEAN LIGHT */
 body.theme-light {
   --bg-primary: #f8fafc;
-  --bg-secondary: #f1f5f9;
+  --bg-secondary: #ffffff;
   --bg-card: #ffffff;
+  --bg-input: #f1f5f9;
   --border-color: #e2e8f0;
-  --accent-color: #16a34a;
-  color: #0f172a;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --brand-400: #22c55e;
+  --brand-500: #16a34a;
+  --brand-600: #15803d;
+}
+
+/* Glassmorphism Classes that dynamically bind to active theme */
+.glass-panel {
+  background-color: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.glass-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+/* Dynamic background adapters for hardcoded slate colors across all components */
+body[class*="theme-"] .bg-slate-950 {
+  background-color: var(--bg-primary) !important;
+}
+
+body[class*="theme-"] .bg-slate-900 {
+  background-color: var(--bg-secondary) !important;
+}
+
+body[class*="theme-"] .bg-slate-800,
+body[class*="theme-"] .bg-slate-800\/80,
+body[class*="theme-"] .bg-slate-800\/60,
+body[class*="theme-"] .bg-slate-800\/40,
+body[class*="theme-"] .bg-slate-800\/50 {
+  background-color: var(--bg-card) !important;
+}
+
+body[class*="theme-"] .border-slate-800,
+body[class*="theme-"] .border-slate-700,
+body[class*="theme-"] .border-slate-700\/80,
+body[class*="theme-"] .border-slate-700\/60,
+body[class*="theme-"] .border-slate-700\/50,
+body[class*="theme-"] .border-slate-700\/40 {
+  border-color: var(--border-color) !important;
+}
+
+/* Form input background adapters */
+body[class*="theme-"] input,
+body[class*="theme-"] select,
+body[class*="theme-"] textarea {
+  background-color: var(--bg-input) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Light mode specific text overrides */
+body.theme-light,
+body.theme-light .text-slate-100,
+body.theme-light .text-slate-200,
+body.theme-light .text-slate-300,
+body.theme-light .text-white,
+body.theme-light h1,
+body.theme-light h2,
+body.theme-light h3,
+body.theme-light h4,
+body.theme-light h5 {
+  color: #0f172a !important;
+}
+
+body.theme-light .text-slate-400,
+body.theme-light .text-slate-500 {
+  color: #64748b !important;
+}
+
+body.theme-light .glass-panel {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
 }
 
 /* Custom Scrollbars */
@@ -101,39 +237,4 @@ body.theme-light {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.4);
-}
-
-/* Glassmorphism helpers */
-.glass-panel {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.glass-card {
-  background: rgba(30, 41, 59, 0.6);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.theme-light .glass-panel {
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.theme-light .glass-card {
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-/* Timeline grid pattern */
-.timeline-grid {
-  background-size: 100% 60px;
-  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-}
-
-.theme-light .timeline-grid {
-  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
 }

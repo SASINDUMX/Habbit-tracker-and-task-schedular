@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAudioNotification } from '../../context/AudioNotificationContext';
 import { useTheme } from '../../context/ThemeContext';
-import { Menu, Volume2, VolumeX, Palette, Clock } from 'lucide-react';
+import { usePwa } from '../../context/PwaContext';
+import { Menu, Volume2, VolumeX, Palette, Clock, Download } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface HeaderProps {
@@ -11,6 +12,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
   const { soundEnabled, setSoundEnabled } = useAudioNotification();
   const { theme, setTheme, themesList } = useTheme();
+  const { isInstalled, installApp } = usePwa();
 
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
 
@@ -51,6 +53,18 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
 
       {/* Right Controls */}
       <div className="flex items-center gap-2 sm:gap-3">
+        {/* Install Button if not installed */}
+        {!isInstalled && (
+          <button
+            onClick={installApp}
+            title="Install Orbit OS to your device"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 hover:text-white text-xs font-semibold border border-blue-500/30 transition cursor-pointer"
+          >
+            <Download className="w-3.5 h-3.5 text-blue-400" />
+            <span className="hidden sm:inline">Install App</span>
+          </button>
+        )}
+
         {/* Quick Theme Cycle Button */}
         <button
           onClick={nextTheme}
